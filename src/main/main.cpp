@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
             particleSimulation = new ParticleSimulation(particleSystemInitializer,  new ParticleSolverCPU(new GridCPU(worldDimensions, args.getNumParticles() / 10.f, 20), args.getTimeStep(), worldDimensions), worldDimensions, windowDim);
             break;
         case Version::GPU:
-            particleSimulation = new ParticleSimulation(particleSystemInitializer, new ParticleSolverGPU(320.0, args.getTimeStep()), worldDimensions, windowDim);
+            particleSimulation = new ParticleSimulation(particleSystemInitializer, new ParticleSolverGPU(320.0, args.getTimeStep(), worldDimensions), worldDimensions, windowDim);
             break;
     }
 

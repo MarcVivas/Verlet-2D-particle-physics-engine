@@ -7,7 +7,7 @@
 
 class ParticleSolverGPU: public ParticleSolver {
 public:
-    ParticleSolverGPU(double block_size, float stepSize);
+    ParticleSolverGPU(double block_size, float stepSize, glm::vec3 worldDimensions);
     ~ParticleSolverGPU();
     bool usesGPU() override;
     void updateParticlePositions(ParticleSystem *particles) override;
@@ -16,6 +16,9 @@ protected:
     double blockSize;
     float stepSize;
     float4 force;
+    float2 worldDim;
+    float2 worldCenter;
+    float worldRadius;
    
 };
 

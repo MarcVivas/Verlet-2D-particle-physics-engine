@@ -37,9 +37,7 @@ void ParticleSimulation::update() {
         // =====================================================
         // Map resources
         // =====================================================
-        float4* cudaPositionsTemp;
-        cudaGraphicsMapResources(1, &cudaPositionsSSBOResource);
-        cudaGraphicsResourceGetMappedPointer((void**)&cudaPositionsTemp, nullptr, cudaPositionsSSBOResource);
+ 
 
         float4* cudaVelocitiesTemp;
         cudaGraphicsMapResources(1, &cudaVelocitiesSSBOResource);
@@ -61,6 +59,10 @@ void ParticleSimulation::update() {
         cudaGraphicsMapResources(1, &cudaPreviousPositionsSSBOResource);
         cudaGraphicsResourceGetMappedPointer((void**)&cudaPreviousPosTemp, nullptr, cudaPreviousPositionsSSBOResource);
         
+        float4* cudaPositionsTemp;
+        cudaGraphicsMapResources(1, &cudaPositionsSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaPositionsTemp, nullptr, cudaPositionsSSBOResource);
+
         // Create an array to store the CUDA pointers
         float4* cudaParticleData[] = { cudaPositionsTemp, cudaVelocitiesTemp, cudaAccelerationsTemp, cudaMassesTemp, cudaForcesTemp, cudaPreviousPosTemp };
 
