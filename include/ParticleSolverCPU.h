@@ -10,6 +10,7 @@ class ParticleSolverCPU: public ParticleSolver  {
 public:
     ParticleSolverCPU(GridCPU *grid, float timeStep, glm::vec3 worldDim);
     void updateParticlePositions(ParticleSystem *particles) override;
+    void updateParticlesPositions(ParticleSystem* particles, float4** cudaData) override;
     bool usesGPU() override;
 protected:
     float G;

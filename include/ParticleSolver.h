@@ -10,6 +10,8 @@ public:
     ParticleSolver() = default;
     virtual void updateParticlePositions(ParticleSystem *particles) = 0;
     virtual bool usesGPU() = 0;
+    virtual void updateParticlesPositions(ParticleSystem* particles, float4** cudaData) = 0;
+
 };
 
 

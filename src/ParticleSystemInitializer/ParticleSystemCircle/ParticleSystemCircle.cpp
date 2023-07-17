@@ -34,10 +34,10 @@ ParticleSystem* ParticleSystemCircle::generateParticles(glm::vec3 worldDimension
         float posY = diskCenter.y + radius * std::sin(angle);
         glm::vec3 particlePos = glm::vec3(posX, posY, 0.f);
 
-        bool isOverlapping = false;
+       /* bool isOverlapping = false;
         for (int i = 0; i < particlesC; i++) {
             float distance = glm::distance(particlePos, particlePositions[i]);
-            if (distance < maxParticleRadius) {
+            if (distance < maxParticleRadius / 10.f) {
                 isOverlapping = true;
                 break;
             }
@@ -46,7 +46,9 @@ ParticleSystem* ParticleSystemCircle::generateParticles(glm::vec3 worldDimension
         if (!isOverlapping) {
             particlePositions.push_back(particlePos);
             particlesC++;
-        }
+        }*/
+        particlePositions.push_back(particlePos);
+        particlesC++;
     }
 
     // Assign particle positions to Particle objects

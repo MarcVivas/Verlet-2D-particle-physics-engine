@@ -2,6 +2,7 @@
 #include <vector>
 #include <ostream>
 #include <Particle.h>
+#include <cuda_runtime.h>
 
 #ifndef N_BODY_PARTICLESYSTEM_H
 #define N_BODY_PARTICLESYSTEM_H
@@ -10,7 +11,6 @@
 class ParticleSystem {
 public:
     ParticleSystem(std::vector<Particle> &particles);
-    ParticleSystem(ParticleSystem* other);
     void updateParticlePosition(unsigned int particleId, float deltaTime);
     unsigned int size() const;
     unsigned int capacity() const;
@@ -27,7 +27,6 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const ParticleSystem& system);
     void addParticle(Particle particle);
 protected:
-
     unsigned int numParticles;
     unsigned int maxParticles;
     glm::vec4* positions;
@@ -36,7 +35,6 @@ protected:
     glm::vec4* masses;
     glm::vec4* forces;
     glm::vec4* previousPositions;
-
 
     // Declare ParticleSimulation as a friend class
     friend class ParticleSimulation;

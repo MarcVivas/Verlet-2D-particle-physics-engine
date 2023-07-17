@@ -11,9 +11,11 @@ public:
     ~ParticleSolverGPU();
     bool usesGPU() override;
     void updateParticlePositions(ParticleSystem *particles) override;
+    void updateParticlesPositions(ParticleSystem* particles, float4** cudaData) override;
 protected:
     double blockSize;
     float stepSize;
+    float4 force;
    
 };
 

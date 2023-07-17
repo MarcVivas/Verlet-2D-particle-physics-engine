@@ -13,8 +13,6 @@ ParticleSystem::ParticleSystem(std::vector<Particle> &particles) {
     this->forces = new glm::vec4[maxParticles]();
     this->previousPositions = new glm::vec4[maxParticles]();
 
-
-
     for (int i = 0; i < maxParticles; i++) {
         unsigned int index = i % numParticles;
         this->velocities[i] = particles[index].velocity;
@@ -25,25 +23,6 @@ ParticleSystem::ParticleSystem(std::vector<Particle> &particles) {
         this->previousPositions[i] = particles[index].position;
     }
 }
-
-ParticleSystem::ParticleSystem(ParticleSystem * other) {
-    this->numParticles = other->size();
-    this->velocities = new glm::vec4[this->numParticles]();
-    this->accelerations = new glm::vec4[this->numParticles]();
-    this->positions = new glm::vec4[this->numParticles]();
-    this->masses = new glm::vec4[this->numParticles]();
-    this->forces = new glm::vec4[this->numParticles]();
-
-    for (int i = 0; i < this->numParticles; i++) {
-        this->velocities[i] = other->getVelocities()[i];
-        this->accelerations[i] = other->getAccelerations()[i];
-        this->positions[i] = other->positions[i];
-        this->masses[i] = other->masses[i];
-        this->forces[i] = other->forces[i];
-    }
-}
-
-
 
 /**
  * Updates a particle position
@@ -89,9 +68,11 @@ glm::vec4* ParticleSystem::getMasses(){
     return this->masses;
 }
 
+
 glm::vec4* ParticleSystem::getPositions() {
     return this->positions;
 }
+
 
 glm::vec4* ParticleSystem::getVelocities() {
     return this->velocities;

@@ -68,7 +68,7 @@ add_dependencies(${PROJECT_NAME} glfw glad glm)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 if (MSVC)
-    set(my_cxx_flags /openmp::llvm)
+   set(my_cxx_flags /openmp::llvm)
     target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${my_cxx_flags}> )
 endif()
 

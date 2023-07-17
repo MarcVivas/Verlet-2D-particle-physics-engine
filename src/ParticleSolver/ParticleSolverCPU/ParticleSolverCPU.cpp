@@ -12,24 +12,26 @@ ParticleSolverCPU::ParticleSolverCPU(GridCPU *grid, float stepSize, glm::vec3 wo
     this->gridCpu = grid;
 }
 
+void ParticleSolverCPU::updateParticlesPositions(ParticleSystem* particles, float4** cudaData){}
+
 void ParticleSolverCPU::updateParticlePositions(ParticleSystem *particles){
     int subSteps = 1;
 
     for(int k = 0; k < subSteps; k++){
         gridCpu->resetGrid();
 
-        #pragma omp parallel for schedule(static)
+        //#pragma omp parallel for schedule(static)
         for(int i = 0; i<particles->size(); i++){
             gridCpu->updateGrid(particles, i);
             computeForce(particles, i);
             applyWorldMargin(particles, i);
         }
 
-        #pragma omp parallel for schedule(dynamic)
+        //#pragma omp parallel for schedule(dynamic)
         for (int subGrid = 0; subGrid < gridCpu->getRowLength(); subGrid += 3) {
             bool enough = false;
             for (auto i = 0; i < 3; i++) {
-                #pragma omp task
+                //#pragma omp task
                 {
                     for (auto j = 0; j < gridCpu->getRowLength(); j++) {
                         auto bucketId = subGrid + i + gridCpu->getRowLength() * j;
@@ -40,12 +42,12 @@ void ParticleSolverCPU::updateParticlePositions(ParticleSystem *particles){
                         solveBucketCollisions(particles, bucketId);
                     }
                 }
-                #pragma omp taskwait
+                //#pragma omp taskwait
                 if (enough) break;
             }
         }
 
-        #pragma omp parallel for schedule(static)
+        //#pragma omp parallel for schedule(static)
         for(int i = 0; i < particles->size(); i++){
             particles->updateParticlePosition(i, this->timeStep / (float)subSteps);
         }
