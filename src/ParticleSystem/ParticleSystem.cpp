@@ -4,7 +4,7 @@
 #include <chrono>
 
 ParticleSystem::ParticleSystem(std::vector<Particle> &particles) {
-    this->maxParticles = 100000;
+    this->maxParticles = 1000000;
     this->numParticles = particles.size();
     this->velocities = new glm::vec4[maxParticles]();
     this->accelerations = new glm::vec4[maxParticles]();
@@ -52,11 +52,11 @@ void ParticleSystem::addParticle(Particle particle) {
     std::cout << "Adding particle " <<numParticles << std::endl;
 
     if(numParticles < maxParticles){
-        this->accelerations[numParticles] = particle.acceleration;
-        this->previousPositions[numParticles] = particle.position;
-        this->velocities[numParticles] = particle.velocity;
-        this->positions[numParticles] = particle.position;
-        this->forces[numParticles] = glm::vec4(0);
+        this->accelerations[numParticles-1] = particle.acceleration;
+        this->previousPositions[numParticles-1] = particle.position;
+        this->velocities[numParticles-1] = particle.velocity;
+        this->positions[numParticles-1] = particle.position;
+        this->forces[numParticles-1] = glm::vec4(0);
     }
 }
 

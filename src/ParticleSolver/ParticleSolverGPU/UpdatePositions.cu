@@ -1,7 +1,8 @@
 
 #include <cuda_runtime.h>
 #include "UpdatePositions.h"
-
+#include "helper_math.h" 
+#include <iostream>
 // The CUDA kernel definition
 __global__ void updatePos(float4* positions, float4* previousPositions, float4* velocities, float4 force, float delta_time, int total_particles) {
 
@@ -14,20 +15,16 @@ __global__ void updatePos(float4* positions, float4* previousPositions, float4* 
     if (tid < total_particles) {
         float4 pos = positions[tid];
         float4 prev = previousPositions[tid];
-
-        // Compute velocity
-        float4 vel = make_float4(pos.x - prev.x, pos.y - prev.y, 0.f, 0.f);
-        velocities[tid] = vel;
-
-        // Save the current position
+        
+      
         previousPositions[tid] = pos;
 
-        // Update acceleration
-        // F = MA;
-        // A = F/M
+        //// Compute velocity
+        float4 vel = (pos - prev) + force * delta_time * delta_time;
+        velocities[tid] = vel;
         
         // Update position
-        positions[tid] = make_float4(pos.x + vel.x, pos.y + vel.y + force.y * delta_time, 0.f, 0.f); 
+        positions[tid] = make_float4(pos.x + vel.x, pos.y + vel.y  , 0.f, 0.f); 
     }
 }
 

@@ -10,7 +10,7 @@ in float particleSize;
 
 vec4 getParticleColor(){
     // Define a maximum velocity value
-    float maxVelocity = 5;
+    float maxVelocity = 2.0;
 
     // Compute the magnitude of the particle's velocity
     float velocityMagnitude = length(particleVelocity);
@@ -20,9 +20,14 @@ vec4 getParticleColor(){
 
     // Define three colors for the gradient (e.g. red, orange, yellow)
     vec3 colorLow = vec3(0.0, 0.0, 1.0); // blue (slowest)
-    vec3 colorMid = vec3(1.0, 0.5, 0.0); // orange (middle)
+    vec3 colorMid = vec3(1.0, 0.5, 1.0); // orange (middle)
     vec3 colorHigh = vec3(1.0, 1.0, 0.0); // yellow (fastest)
 
+    /*
+    vec3 colorLow = vec3(1.0, 0.0, 0.0); // red (slowest)
+    vec3 colorMid = vec3(1.0, 0.5, 0.0); // orange (middle)
+    vec3 colorHigh = vec3(1.0, 1.0, 0.0); // yellow (fastest)
+*/
     // Interpolate between the three colors based on the normalized velocity value
     float smoothNormalizedVelocity1 = smoothstep(0.0, 0.5, normalizedVelocity);
     float smoothNormalizedVelocity2 = smoothstep(0.5, 1.0, normalizedVelocity);

@@ -37,7 +37,6 @@ protected:
     void createBuffers(bool usesGPU);
     void configureGpuBuffers();
     void configureCpuBuffers();
-    virtual void updateGPUParticleSystem();
 
 };
 #endif // PARTICLESIMULATION_H

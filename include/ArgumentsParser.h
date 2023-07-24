@@ -13,11 +13,15 @@ public:
     size_t getNumParticles();
     float getTimeStep();
     float getMaxParticleSize();
+    int getBucketsPerRow();
+    int getBucketCapacity();
 private:
     Version version;
     size_t numParticles;
     float timeStep;
     float maxParticleSize;
+    int bucketsPerRow; 
+    int bucketCapacity;
 };
 
 

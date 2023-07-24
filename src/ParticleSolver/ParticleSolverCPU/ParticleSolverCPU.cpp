@@ -5,7 +5,7 @@
 
 ParticleSolverCPU::ParticleSolverCPU(GridCPU *grid, float stepSize, glm::vec3 worldDim): ParticleSolver() {
     this->timeStep = stepSize;
-    this->G = -7000.2f*7000.2f;
+    this->G = -9.8f;
     this->worldDimensions = worldDim;
     this->worldCenter = glm::vec4(worldDim, 0.f) / 2.f;
     this->worldRadius = worldDimensions.x - 0.13 * worldDimensions.x;
@@ -15,43 +15,41 @@ ParticleSolverCPU::ParticleSolverCPU(GridCPU *grid, float stepSize, glm::vec3 wo
 void ParticleSolverCPU::updateParticlesPositions(ParticleSystem* particles, float4** cudaData){}
 
 void ParticleSolverCPU::updateParticlePositions(ParticleSystem *particles){
-    int subSteps = 1;
+    gridCpu->resetGrid();
 
-    for(int k = 0; k < subSteps; k++){
-        gridCpu->resetGrid();
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < particles->size(); i++) {
+        gridCpu->updateGrid(particles, i);
+        computeForce(particles, i);
+        applyWorldMargin(particles, i);
+    }
 
-        //#pragma omp parallel for schedule(static)
-        for(int i = 0; i<particles->size(); i++){
-            gridCpu->updateGrid(particles, i);
-            computeForce(particles, i);
-            applyWorldMargin(particles, i);
-        }
-
-        //#pragma omp parallel for schedule(dynamic)
-        for (int subGrid = 0; subGrid < gridCpu->getRowLength(); subGrid += 3) {
-            bool enough = false;
-            for (auto i = 0; i < 3; i++) {
-                //#pragma omp task
-                {
-                    for (auto j = 0; j < gridCpu->getRowLength(); j++) {
-                        auto bucketId = subGrid + i + gridCpu->getRowLength() * j;
-                        if (bucketId >= gridCpu->getTotalBuckets()) {
-                            enough = true;
-                            break;
-                        }
-                        solveBucketCollisions(particles, bucketId);
+    #pragma omp parallel for schedule(dynamic)
+    for (int subGrid = 0; subGrid < gridCpu->getRowLength(); subGrid += 3) {
+        bool enough = false;
+        for (auto i = 0; i < 3; i++) {
+            #pragma omp task
+            {
+                for (auto j = 0; j < gridCpu->getRowLength(); j++) {
+                    auto bucketId = subGrid + i + gridCpu->getRowLength() * j;
+                    if (bucketId >= gridCpu->getTotalBuckets()) {
+                        enough = true;
+                        break;
                     }
+                    solveBucketCollisions(particles, bucketId);
                 }
-                //#pragma omp taskwait
-                if (enough) break;
             }
-        }
-
-        //#pragma omp parallel for schedule(static)
-        for(int i = 0; i < particles->size(); i++){
-            particles->updateParticlePosition(i, this->timeStep / (float)subSteps);
+            #pragma omp taskwait
+            if (enough) break;
         }
     }
+
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < particles->size(); i++) {
+        particles->updateParticlePosition(i, this->timeStep);
+    }
+      
+    
 
 
 }
@@ -67,7 +65,11 @@ void ParticleSolverCPU::applyWorldMargin(ParticleSystem *particles, unsigned int
 
     if(distanceFromCenter > maxRadius){
         glm::vec4 normalizedVec = glm::normalize(vec_particle_world_center);
-        particles->getPositions()[particleId] -= normalizedVec * (distanceFromCenter - worldRadius + particleRadius);
+    
+        float correctionFactor = (distanceFromCenter - worldRadius + particleRadius);
+
+        // Apply the collision correction to the particle's position
+        particles->getPositions()[particleId] -= normalizedVec * correctionFactor;
     }
 }
 
@@ -94,11 +96,18 @@ ParticleSolverCPU::solveCollision(ParticleSystem *particles, const unsigned int 
     // Minimum distance when there's no collision
     float desired_distance =  particle_1_radius + particle_2_radius;
 
-    // Distance to move both particles
-    float distance_to_move = (desired_distance - current_distance) * 0.5f;
+    float inv_mass1 = 1.f / (particle_1_radius * particle_1_radius);
+    float inv_mass2 = 1.f / (particle_2_radius * particle_2_radius);
 
-    particles->getPositions()[i] = particle_1_pos + (collisionVectorDirection * distance_to_move);
-    particles->getPositions()[j] = particle_2_pos - (collisionVectorDirection * distance_to_move);
+
+    const float percent = 0.290f;   // usually 0.2 to 0.8
+    float penetration = (particle_1_radius + particle_2_radius) - current_distance;
+    const float slop = 0.04f;   // usually 0.01 to 0.1 
+    glm::vec4 correction = (fmax(penetration - slop, 0.f) / (inv_mass1 + inv_mass2)) * percent * collisionVectorDirection;
+
+
+    particles->getPositions()[i] = particle_1_pos + (inv_mass1)*correction;
+    particles->getPositions()[j] = particle_2_pos - (inv_mass2)*correction;
 }
 
 void ParticleSolverCPU::solveBucketCollisions(ParticleSystem *particles, unsigned int bucketId) {

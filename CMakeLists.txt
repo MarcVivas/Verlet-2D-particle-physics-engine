@@ -61,15 +61,15 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 find_package(OpenMP)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_CU})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_CPP} ${PROJECT_SOURCES_CU} )
 
 add_dependencies(${PROJECT_NAME} glfw glad glm)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 
 if (MSVC)
-   set(my_cxx_flags /openmp::llvm)
-    target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${my_cxx_flags}> )
+   set(my_cxx_flags "/openmp:llvm")
+   target_compile_options(${PROJECT_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${my_cxx_flags}> )
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -77,7 +77,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 # Add CUDA-specific settings
 set(CUDA_ARCH_LIST "35;50;60;61;75" CACHE STRING "List of CUDA architectures to generate code for")
 foreach(arch ${CUDA_ARCH_LIST})
-    string(APPEND CUDA_NVCC_FLAGS " -gencode=arch=compute_${arch},code=sm_${arch}")
+    string(APPEND CUDA_NVCC_FLAGS " -gencode=arch=compute_${arch},code=sm_${arch} -use_fast_math -Xptxas -O3")
 endforeach()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw glad glm OpenMP::OpenMP_CXX ${CUDA_LIBRARIES})

@@ -41,7 +41,7 @@ void RenderTimer::updateFPS(Window& window) {
         if (this->showFPS) {
             // Update the window title
             std::ostringstream title;
-            title << "N-body simulation | " << ms_per_frame << " ms/frame (" << fps << " FPS)";
+            title << "2D engine | " << ms_per_frame << " ms/frame (" << fps << " FPS)";
             window.updateWindowTitle(title.str().c_str());
         }
 

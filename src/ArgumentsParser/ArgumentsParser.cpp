@@ -5,12 +5,14 @@ ArgumentsParser::ArgumentsParser(int argc, char *argv[]) {
     // Default values
     this->version = Version::GPU;
     this->numParticles = 100;
-    this->timeStep = .00001f;
+    this->timeStep = .02f;
     this->maxParticleSize = 15.f;
+    this->bucketsPerRow = 10;
+    this->bucketCapacity = 100;
 
     std::cout << "============================================ \n\n";
-    std::cout << "Usage: " << argv[0] << " [-v version] [-n numParticles] [-t timeStep] [-s maxParticleSize]\n";
-    std::cout << "Default: " << argv[0] << " -v 2 -n 100 -t 0.00001 -s 15.0\n\n";
+    std::cout << "Usage: " << argv[0] << " [-v version] [-n numParticles] [-t timeStep] [-s maxParticleSize] [-b bucketsPerRow] [-c bucketCapacity]\n";
+    std::cout << "Default: " << argv[0] << " -v 2 -n 100 -t 0.02 -s 15.0 -b 10 -c 100\n\n";
 
     std::cout << "Available versions: \n";
     std::cout << "-v 1 (Grid algorithm - CPU parallel)\n";
@@ -44,6 +46,14 @@ ArgumentsParser::ArgumentsParser(int argc, char *argv[]) {
             this->timeStep = std::stof(argv[i+1]);
             i++;
         }
+        else if (arg == "-c" && i + 1 < argc) {
+            this->bucketCapacity= std::stoi(argv[i + 1]);
+            i++;
+        }
+        else if (arg == "-b" && i + 1 < argc) {
+            this->bucketsPerRow = std::stoi(argv[i + 1]);
+            i++;
+        }
         else if (arg == "-s" && i + 1 < argc) {
             this->maxParticleSize = std::stof(argv[i+1]);
             i++;
@@ -59,7 +69,9 @@ ArgumentsParser::ArgumentsParser(int argc, char *argv[]) {
     std::cout << "Version: " << version << "\n";
     std::cout << "Num particles: " << numParticles << "\n";
     std::cout << "Time step: " << timeStep << '\n';
-    std::cout << "Max particle size: " << maxParticleSize << "\n\n";
+    std::cout << "Max particle size: " << maxParticleSize << "\n";
+    std::cout << "Grid size: " << bucketsPerRow << " x " << bucketsPerRow << "\n";
+    std::cout << "Bucket individual capacity: " << bucketCapacity << "\n\n";
     std::cout << "------------------------------------ \n\n";
     
 }
@@ -67,7 +79,6 @@ ArgumentsParser::ArgumentsParser(int argc, char *argv[]) {
 Version ArgumentsParser::getVersion() {
     return this->version;
 }
-
 
 size_t ArgumentsParser::getNumParticles() {
     return this->numParticles;
@@ -79,4 +90,12 @@ float ArgumentsParser::getTimeStep() {
 
 float ArgumentsParser::getMaxParticleSize() {
     return this->maxParticleSize;
+}
+
+int ArgumentsParser::getBucketCapacity() {
+    return this->bucketCapacity;
+}
+
+int ArgumentsParser::getBucketsPerRow() {
+    return this->bucketsPerRow;
 }

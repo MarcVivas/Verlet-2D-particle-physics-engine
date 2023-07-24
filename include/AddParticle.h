@@ -1,0 +1,1 @@
+void addNewParticle(float4* positions, float4* masses, float4*accelerations, float4*velocities, float4*forces, float4*previousPositions, float4 pos, float4 acc, float4 vel, float4 f, int total_particles);

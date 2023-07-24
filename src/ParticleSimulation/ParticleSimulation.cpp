@@ -1,6 +1,7 @@
 #include <iostream>
 #include "ParticleSimulation.h"
 #include "ParticleSolverGPU.h"
+#include "AddParticle.h"
 
 ParticleSimulation::ParticleSimulation(ParticleSystemInitializer *particleSystemInitializer,
                                        ParticleSolver *particleSysSolver, glm::vec3 worldDim, glm::vec2 windowDim){
@@ -134,31 +135,31 @@ void ParticleSimulation::createBuffers(bool usesGPU) {
 
 void ParticleSimulation::configureGpuBuffers() {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->postitions_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getPositions(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getPositions(), GL_DYNAMIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaPositionsSSBOResource, postitions_SSBO, cudaGraphicsRegisterFlagsNone);
 
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->velocities_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getVelocities(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getVelocities(), GL_DYNAMIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaVelocitiesSSBOResource, velocities_SSBO, cudaGraphicsRegisterFlagsNone);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->accelerations_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getAccelerations(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getAccelerations(), GL_DYNAMIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaAccelerationsSSBOResource, accelerations_SSBO, cudaGraphicsRegisterFlagsNone);
  
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->masses_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getMasses(), GL_STATIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getMasses(), GL_STATIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaMassesSSBOResource, masses_SSBO, cudaGraphicsRegisterFlagsNone);
     
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->forces_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getForces(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getForces(), GL_DYNAMIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaForcesSSBOResource, forces_SSBO, cudaGraphicsRegisterFlagsNone);
 
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->previousPos_SSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->size(), this->particleSystem->getPreviousPositions(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * this->particleSystem->capacity(), this->particleSystem->getPreviousPositions(), GL_DYNAMIC_DRAW);
     cudaGraphicsGLRegisterBuffer(&cudaPreviousPositionsSSBOResource, previousPos_SSBO, cudaGraphicsRegisterFlagsNone);
 
     
@@ -217,52 +218,70 @@ void ParticleSimulation::waitParticlesBuffer()
     }
 }
 
-
-void ParticleSimulation::updateGPUParticleSystem() {
-    if(this->particleSolver->usesGPU()){
-        int numParticles = this->particleSystem->size();
-
-
-        // Bind the velocity SSBO
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->velocities_SSBO);
-        // Map the velocity SSBO memory to CPU-accessible memory
-        glm::vec4* velocities = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-        glm::vec4* copiedVelocities = new glm::vec4[numParticles];
-        std::copy(velocities, velocities + numParticles, copiedVelocities);
-        this->particleSystem->setVelocities(copiedVelocities);
-        // Unmap the velocity SSBO
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-
-        // Bind the position SSBO
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->postitions_SSBO);
-        // Map the position SSBO memory to CPU-accessible memory
-        glm::vec4* positions = (glm::vec4*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-        glm::vec4* copiedPositions = new glm::vec4[numParticles];
-        std::copy(positions, positions + numParticles, copiedPositions);
-        this->particleSystem->setPositions(copiedPositions);
-        // Unmap the position SSBO
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-        // Bind the acceleration SSBO
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, this->accelerations_SSBO);
-        // Map the acceleration SSBO memory to CPU-accessible memory
-        glm::vec4* accelerations = static_cast<glm::vec4*>(glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY));
-        glm::vec4* copiedAccelerations = new glm::vec4[numParticles];
-        std::copy(accelerations, accelerations + numParticles, copiedAccelerations);
-        this->particleSystem->setAccelerations(copiedAccelerations);
-        // Unmap the acceleration SSBO
-        glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-        // Unbind the shader storage buffers
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
-}
-
 void ParticleSimulation::addParticle(double mouseX, double mouseY) {
     glm::vec3 mousePos(mouseX, mouseY, 0.f);
     glm::vec3 vel(0.f);
     particleSystem->addParticle(Particle(mousePos, vel, 0.f));
+
+    if(particleSolver->usesGPU()){
+
+
+        // =====================================================
+        // Map resources
+        // =====================================================
+        float4* cudaVelocitiesTemp;
+        cudaGraphicsMapResources(1, &cudaVelocitiesSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaVelocitiesTemp, nullptr, cudaVelocitiesSSBOResource);
+
+        float4* cudaAccelerationsTemp;
+        cudaGraphicsMapResources(1, &cudaAccelerationsSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaAccelerationsTemp, nullptr, cudaAccelerationsSSBOResource);
+
+        float4* cudaMassesTemp;
+        cudaGraphicsMapResources(1, &cudaMassesSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaMassesTemp, nullptr, cudaMassesSSBOResource);
+
+        float4* cudaForcesTemp;
+        cudaGraphicsMapResources(1, &cudaForcesSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaForcesTemp, nullptr, cudaForcesSSBOResource);
+
+        float4* cudaPreviousPosTemp;
+        cudaGraphicsMapResources(1, &cudaPreviousPositionsSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaPreviousPosTemp, nullptr, cudaPreviousPositionsSSBOResource);
+
+        float4* cudaPositionsTemp;
+        cudaGraphicsMapResources(1, &cudaPositionsSSBOResource);
+        cudaGraphicsResourceGetMappedPointer((void**)&cudaPositionsTemp, nullptr, cudaPositionsSSBOResource);
+
+        // =====================================================
+        int partId = particleSystem->size()-1;
+
+        addNewParticle(
+                cudaPositionsTemp,
+                cudaMassesTemp,
+                cudaAccelerationsTemp,
+                cudaVelocitiesTemp,
+                cudaForcesTemp,
+                cudaPreviousPosTemp,
+                make_float4(particleSystem->getPositions()[partId].x,  particleSystem->getPositions()[partId].y, 0.f, 0.f),
+                make_float4(particleSystem->getAccelerations()[partId].x, particleSystem->getAccelerations()[partId].y, 0.f, 0.f),
+                make_float4(particleSystem->getVelocities()[partId].x, particleSystem->getVelocities()[partId].y, 0.f, 0.f),
+                make_float4(particleSystem->getForces()[partId].x, particleSystem->getForces()[partId].y, 0.f, 0.f),
+                particleSystem->size()
+                );
+
+        // =====================================================
+        // UnMap resources
+        // =====================================================
+        cudaGraphicsUnmapResources(1, &cudaPositionsSSBOResource);
+        cudaGraphicsUnmapResources(1, &cudaVelocitiesSSBOResource);
+        cudaGraphicsUnmapResources(1, &cudaAccelerationsSSBOResource);
+        cudaGraphicsUnmapResources(1, &cudaMassesSSBOResource);
+        cudaGraphicsUnmapResources(1, &cudaForcesSSBOResource);
+        cudaGraphicsUnmapResources(1, &cudaPreviousPositionsSSBOResource);
+        // =====================================================
+    }
+
 }
 
 ParticleDrawer *ParticleSimulation::getParticleDrawer() {

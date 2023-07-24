@@ -16,7 +16,7 @@ ParticleSystem* ParticleSystemCircle::generateParticles(glm::vec3 worldDimension
     glm::vec3 diskCenter = glm::vec3(worldDimensions.x /2, worldDimensions.y / 2, 0.f);
     float diskRadius = std::min(worldDimensions.x * 0.85f, worldDimensions.x );
 
-// Generate random seed
+    // Generate random seed
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> angleDistribution(0.f, 2 * glm::pi<float>());
@@ -34,7 +34,7 @@ ParticleSystem* ParticleSystemCircle::generateParticles(glm::vec3 worldDimension
         float posY = diskCenter.y + radius * std::sin(angle);
         glm::vec3 particlePos = glm::vec3(posX, posY, 0.f);
 
-       /* bool isOverlapping = false;
+        /*bool isOverlapping = false;
         for (int i = 0; i < particlesC; i++) {
             float distance = glm::distance(particlePos, particlePositions[i]);
             if (distance < maxParticleRadius / 10.f) {
@@ -53,7 +53,7 @@ ParticleSystem* ParticleSystemCircle::generateParticles(glm::vec3 worldDimension
 
     // Assign particle positions to Particle objects
     for (int i = 0; i < totalParticles; i++) {
-        glm::vec3 initialVel = glm::vec3(0);
+        glm::vec3 initialVel = glm::vec3(0, 0, 0);
         particles[i] = Particle(particlePositions[i], initialVel, randMass(mt));
     }
 
