@@ -1,5 +1,7 @@
 # 2D verlet physics engine
 
+![ezgif com-video-to-gif (1)](https://github.com/MarcVivas/ParticlePhysics/assets/79216334/0528d203-6a2b-4ff4-a2c4-83961517b4c4)
+
 ### Requirements
 - NVIDIA GPU compatible with CUDA
 - The [Cuda toolkit](https://developer.nvidia.com/cuda-toolkit)
