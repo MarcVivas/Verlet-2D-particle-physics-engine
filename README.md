@@ -1,10 +1,9 @@
 # 2D verlet physics engine
-![ezgif com-video-to-gif](https://github.com/MarcVivas/ParticlePhysics/assets/79216334/d8ce3c58-2eef-44dc-b9ea-1e08ea3f4c61)
-![ezgif com-video-to-gif](https://github.com/MarcVivas/ParticlePhysics/assets/79216334/4fd56d49-d474-48a8-90c6-16e6809e12fd)
+![ezgif com-video-to-gif](https://github.com/MarcVivas/Verlet-2D-particle-physics-engine/assets/79216334/18d5b8a0-742d-4164-9e77-17bf0dec574c)
+![ezgif com-video-to-gif](https://github.com/MarcVivas/Verlet-2D-particle-physics-engine/assets/79216334/2976280c-68f8-4afe-adb6-7a9affcb39f6)
+![ezgif com-video-to-gif (1)](https://github.com/MarcVivas/Verlet-2D-particle-physics-engine/assets/79216334/fae2c647-7e34-4973-819c-859f80030364)
+![ezgif com-video-to-gif (2)](https://github.com/MarcVivas/Verlet-2D-particle-physics-engine/assets/79216334/db47730f-9576-4374-84c6-65d0fd5c031c)
 
-![ezgif com-video-to-gif (1)](https://github.com/MarcVivas/ParticlePhysics/assets/79216334/0528d203-6a2b-4ff4-a2c4-83961517b4c4)
-
-![ezgif com-video-to-gif (2)](https://github.com/MarcVivas/ParticlePhysics/assets/79216334/db5feb06-bf6a-484d-854d-962cea6a4d2e)
 
 ### Requirements
 - NVIDIA GPU compatible with CUDA
