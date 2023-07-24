@@ -1,8 +1,22 @@
 # 2D verlet physics engine
 ## Overview
 
-## Run the project
+### Requirements
+- NVIDIA GPU compatible with CUDA
+- The [Cuda toolkit](https://developer.nvidia.com/cuda-toolkit)
+- CMake
+- Visual studio
 
+## Run the project
+```
+mkdir build && cd build
+```
+```
+cmake ..
+```
+```
+msbuild .\collisions.sln
+```
 
 ## Program arguments
 These are the available arguments you can use:
