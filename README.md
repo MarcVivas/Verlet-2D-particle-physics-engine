@@ -1,5 +1,4 @@
 # 2D verlet physics engine
-## Overview
 
 ### Requirements
 - NVIDIA GPU compatible with CUDA
@@ -7,16 +6,14 @@
 - CMake
 - Visual studio
 
-## Run the project
+## Run the project (Windows)
 ```
 mkdir build && cd build
 ```
 ```
 cmake ..
 ```
-```
-msbuild .\collisions.sln
-```
+Open the project `collisions.sln` with Visual Studio and execute it there.
 
 ## Program arguments
 These are the available arguments you can use:
@@ -33,3 +30,7 @@ These are the available arguments you can use:
 - `-b 10` This would make a uniform grid of 10 x 10 buckets/cells.
 ### 5. Bucket capacity
 - `-c 1000` The maximum number of particles that can be in a bucket.
+### Example
+```
+.\collisions.exe -n 40000 -b 100 -c 5000 -s 5.0 -t 0.02 
+```
